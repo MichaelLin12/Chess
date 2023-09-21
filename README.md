@@ -5,3 +5,4 @@ A game of Chess
 # Getting Started
 
 # Credits
+Michael Lin
