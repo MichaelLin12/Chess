@@ -74,20 +74,24 @@ class Pawn(Pieces):
             offset = -1
             opponent = 'white'
 
-
+        y_val = self.x - self.direction[0][1]
+        x_val = self.y - self.direction[0][0]
         if self.move == 0:
-            y_val = self.x - self.direction[0][1]
-            x_val = self.y - self.direction[0][0]
             if 0 <= y_val < 8 and 0 <= x_val < 8 and board[y_val][x_val] == None: # check if the pawn can move one square forward
                 moves_list.append((y_val, x_val))
             if 0 <= y_val-offset < 8 and 0 <= x_val < 8 and board[y_val - offset][x_val] == None: # check if the pawn can move two squares forward
                 moves_list.append((y_val - offset, x_val))
-            if 0 <= y_val < 8 and 0 <= x_val+offset < 8 and board[y_val][x_val + offset] != None and board[y_val][x_val + offset].getIdentity() == opponent: # check if the pawn can capture a piece to the right
+            if 0 <= y_val < 8 and 0 <= x_val+offset < 8 and board[y_val][x_val + offset] != None and board[y_val][x_val + offset].getColor() == opponent: # check if the pawn can capture a piece to the right
                 moves_list.append((y_val, x_val + offset))
-            if 0 <= y_val < 8 and 0 <= x_val-offset < 8 and board[y_val][x_val - offset] != None and board[y_val][x_val - offset].getIdentity() == opponent: # check if the pawn can capture a piece to the left
+            if 0 <= y_val < 8 and 0 <= x_val-offset < 8 and board[y_val][x_val - offset] != None and board[y_val][x_val - offset].getColor() == opponent: # check if the pawn can capture a piece to the left
                 moves_list.append((y_val, x_val - offset))
         else:
-            pass
+            if 0 <= y_val < 8 and 0 <= x_val < 8 and board[y_val][x_val] == None: # check if the pawn can move one square forward
+                moves_list.append((y_val, x_val))
+            if 0 <= y_val < 8 and 0 <= x_val+offset < 8 and board[y_val][x_val + offset] != None and board[y_val][x_val + offset].getColor() == opponent: # check if the pawn can capture a piece to the right
+                moves_list.append((y_val, x_val + offset))
+            if 0 <= y_val < 8 and 0 <= x_val-offset < 8 and board[y_val][x_val - offset] != None and board[y_val][x_val - offset].getColor() == opponent: # check if the pawn can capture a piece to the left
+                moves_list.append((y_val, x_val - offset))
         return moves_list
     def getEnPassant(self):
         return self.en_passant
