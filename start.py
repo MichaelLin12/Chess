@@ -327,6 +327,7 @@ class Board:
         fr_coords = (piece.getX(), piece.getY()) # from coords
         dummy_piece = self.game_pieces[fr_coords];
         print(dummy_piece)
+        # must check if capturing piece
         piece.setX(coords[0])
         piece.setY(coords[1])
         del self.game_pieces[fr_coords]
