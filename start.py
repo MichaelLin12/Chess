@@ -4,7 +4,7 @@ import utility
 
 
 class Pieces(ABC):
-    def __init__(self, x,y, image,color,direction, identity) -> None:
+    def __init__(self, x,y, image,color,direction, identity, captured_image) -> None:
         super().__init__()
         self.identity = identity
         self.x = x
@@ -13,6 +13,7 @@ class Pieces(ABC):
         self.color = color
         self.direction = direction
         self.captured = False
+        self.captured_image = captured_image
     
     @abstractmethod
     def getMoves(self,board):
@@ -56,11 +57,14 @@ class Pieces(ABC):
     
     def getIdentity(self):
         return self.identity
+    
+    def getCapturedImage(self):
+        return self.captured_image
 
 
 class Pawn(Pieces):
-    def __init__(self, x,y, image,color,direction) -> None:
-        super().__init__(x,y, image,color,direction, 'pawn')
+    def __init__(self, x,y, image,color,direction, captured_image) -> None:
+        super().__init__(x,y, image,color,direction, 'pawn', captured_image)
         self.move = 0 # number of moves made by the pawn
         self.en_passant = True # en passant flag
     
@@ -106,8 +110,8 @@ class Pawn(Pieces):
         self.move = move
 
 class Rook(Pieces):
-    def __init__(self, x,y, image,color) -> None:
-        super().__init__(x,y, image,color,[(1,0), (-1,0), (0,1), (0,-1)], 'rook')
+    def __init__(self, x,y, image,color, captured_image) -> None:
+        super().__init__(x,y, image,color,[(1,0), (-1,0), (0,1), (0,-1)], 'rook', captured_image)
         self.move = 0 # number of moves made by the rook
     
     def getMoves(self,board):
@@ -120,22 +124,22 @@ class Rook(Pieces):
         self.move = move
 
 class Knight(Pieces):
-    def __init__(self, x,y, image,color) -> None:
-        super().__init__(x,y, image,color,[(2,1), (2,-1), (-2,1), (-2,-1), (1,2), (-1,2), (1,-2), (-1,-2)],'knight')
+    def __init__(self, x,y, image,color, captured_image) -> None:
+        super().__init__(x,y, image,color,[(2,1), (2,-1), (-2,1), (-2,-1), (1,2), (-1,2), (1,-2), (-1,-2)],'knight', captured_image)
     
     def getMoves(self,board):
         pass
 
 class Bishop(Pieces):
-    def __init__(self, x,y, image,color) -> None:
-        super().__init__(x,y, image,color,[(1,1), (1,-1), (-1,1), (-1,-1)], 'bishop')
+    def __init__(self, x,y, image,color, captured_image) -> None:
+        super().__init__(x,y, image,color,[(1,1), (1,-1), (-1,1), (-1,-1)], 'bishop', captured_image)
     
     def getMoves(self,board):
         pass
 
 class King(Pieces):
-    def __init__(self, x,y, image,color) -> None:
-        super().__init__(x,y, image,color,[(1,0), (-1,0), (0,1), (0,-1), (1,1), (1,-1), (-1,1), (-1,-1)],'king')
+    def __init__(self, x,y, image,color, captured_image) -> None:
+        super().__init__(x,y, image,color,[(1,0), (-1,0), (0,1), (0,-1), (1,1), (1,-1), (-1,1), (-1,-1)],'king', captured_image)
         self.move = 0 # number of moves made by the king
     
     def getMoves(self,board):
@@ -148,8 +152,8 @@ class King(Pieces):
         self.move = move
 
 class Queen(Pieces):
-    def __init__(self, x,y, image,color) -> None:
-        super().__init__(x,y, image,color,[(1,0), (-1,0), (0,1), (0,-1), (1,1), (1,-1), (-1,1), (-1,-1)],'queen')
+    def __init__(self, x,y, image,color, captured_image) -> None:
+        super().__init__(x,y, image,color,[(1,0), (-1,0), (0,1), (0,-1), (1,1), (1,-1), (-1,1), (-1,-1)],'queen', captured_image)
     
     def getMoves(self,board):
         pass
@@ -181,6 +185,7 @@ class Board:
         self.populate_board()
         self.set_piece_mapping() # mapping of utility pieces to actual pieces on game board
         self.selected_moves = []
+        self.captured_pieces = [] # list of captured pieces
 
     def draw_selection(self, screen):
         if self.selection != utility.Pieces.No_Piece:
@@ -219,38 +224,38 @@ class Board:
 
 
     def set_piece_mapping(self):
-        self.piece_mapping = {utility.Pieces.White_Pawn_1: Pawn(6,0, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]), 
-        utility.Pieces.White_Pawn_2: Pawn(6,1, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Pawn_3: Pawn(6,2, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Pawn_4: Pawn(6,3, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Pawn_5: Pawn(6,4, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Pawn_6: Pawn(6,5, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Pawn_7: Pawn(6,6, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Pawn_8: Pawn(6,7, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)]),
-        utility.Pieces.White_Rook_1: Rook(7,0, pygame.transform.scale(pygame.image.load('assets/images/white rook.png'), (60, 60)), 'white'),
-        utility.Pieces.White_Rook_2: Rook(7,7, pygame.transform.scale(pygame.image.load('assets/images/white rook.png'), (60, 60)), 'white'),
-        utility.Pieces.White_Queen: Queen(7,3, pygame.transform.scale(pygame.image.load('assets/images/white queen.png'), (60, 60)), 'white'),
-        utility.Pieces.White_King: King(7,4, pygame.transform.scale(pygame.image.load('assets/images/white king.png'), (60, 60)), 'white'),
-        utility.Pieces.White_Bishop_1: Bishop(7,2, pygame.transform.scale(pygame.image.load('assets/images/white bishop.png'), (60, 60)), 'white'),
-        utility.Pieces.White_Bishop_2: Bishop(7,5, pygame.transform.scale(pygame.image.load('assets/images/white bishop.png'), (60, 60)), 'white'),
-        utility.Pieces.White_Knight_1: Knight(7,1, pygame.transform.scale(pygame.image.load('assets/images/white knight.png'), (60, 60)), 'white'),
-        utility.Pieces.White_Knight_2: Knight(7,6, pygame.transform.scale(pygame.image.load('assets/images/white knight.png'), (60, 60)), 'white'),
-        utility.Pieces.Black_Pawn_1: Pawn(1,0, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_2: Pawn(1,1, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_3: Pawn(1,2, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_4: Pawn(1,3, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_5: Pawn(1,4, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_6: Pawn(1,5, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_7: Pawn(1,6, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Pawn_8: Pawn(1,7, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)]),
-        utility.Pieces.Black_Rook_1: Rook(0,0, pygame.transform.scale(pygame.image.load('assets/images/black rook.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_Rook_2: Rook(0,7, pygame.transform.scale(pygame.image.load('assets/images/black rook.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_Queen: Queen(0,3, pygame.transform.scale(pygame.image.load('assets/images/black queen.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_King: King(0,4, pygame.transform.scale(pygame.image.load('assets/images/black king.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_Bishop_1: Bishop(0,2, pygame.transform.scale(pygame.image.load('assets/images/black bishop.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_Bishop_2: Bishop(0,5, pygame.transform.scale(pygame.image.load('assets/images/black bishop.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_Knight_1: Knight(0,1, pygame.transform.scale(pygame.image.load('assets/images/black knight.png'), (60, 60)), 'black'),
-        utility.Pieces.Black_Knight_2: Knight(0,6, pygame.transform.scale(pygame.image.load('assets/images/black knight.png'), (60, 60)), 'black')}
+        self.piece_mapping = {utility.Pieces.White_Pawn_1: Pawn(6,0, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))), 
+        utility.Pieces.White_Pawn_2: Pawn(6,1, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Pawn_3: Pawn(6,2, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Pawn_4: Pawn(6,3, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Pawn_5: Pawn(6,4, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Pawn_6: Pawn(6,5, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Pawn_7: Pawn(6,6, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Pawn_8: Pawn(6,7, pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (60, 60)), 'white', [(0,1)], pygame.transform.scale(pygame.image.load('assets/images/white pawn.png'), (45, 45))),
+        utility.Pieces.White_Rook_1: Rook(7,0, pygame.transform.scale(pygame.image.load('assets/images/white rook.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white rook.png'), (45, 45))),
+        utility.Pieces.White_Rook_2: Rook(7,7, pygame.transform.scale(pygame.image.load('assets/images/white rook.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white rook.png'), (45, 45))),
+        utility.Pieces.White_Queen: Queen(7,3, pygame.transform.scale(pygame.image.load('assets/images/white queen.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white queen.png'), (45, 45))),
+        utility.Pieces.White_King: King(7,4, pygame.transform.scale(pygame.image.load('assets/images/white king.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white king.png'), (45, 45))),
+        utility.Pieces.White_Bishop_1: Bishop(7,2, pygame.transform.scale(pygame.image.load('assets/images/white bishop.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white bishop.png'), (45, 45))),
+        utility.Pieces.White_Bishop_2: Bishop(7,5, pygame.transform.scale(pygame.image.load('assets/images/white bishop.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white bishop.png'), (45, 45))),
+        utility.Pieces.White_Knight_1: Knight(7,1, pygame.transform.scale(pygame.image.load('assets/images/white knight.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white knight.png'), (45, 45))),
+        utility.Pieces.White_Knight_2: Knight(7,6, pygame.transform.scale(pygame.image.load('assets/images/white knight.png'), (60, 60)), 'white', pygame.transform.scale(pygame.image.load('assets/images/white knight.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_1: Pawn(1,0, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_2: Pawn(1,1, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_3: Pawn(1,2, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_4: Pawn(1,3, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_5: Pawn(1,4, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_6: Pawn(1,5, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_7: Pawn(1,6, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Pawn_8: Pawn(1,7, pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (60, 60)), 'black', [(0,-1)], pygame.transform.scale(pygame.image.load('assets/images/black pawn.png'), (45, 45))),
+        utility.Pieces.Black_Rook_1: Rook(0,0, pygame.transform.scale(pygame.image.load('assets/images/black rook.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black rook.png'), (45, 45))),
+        utility.Pieces.Black_Rook_2: Rook(0,7, pygame.transform.scale(pygame.image.load('assets/images/black rook.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black rook.png'), (45, 45))),
+        utility.Pieces.Black_Queen: Queen(0,3, pygame.transform.scale(pygame.image.load('assets/images/black queen.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black queen.png'), (45, 45))),
+        utility.Pieces.Black_King: King(0,4, pygame.transform.scale(pygame.image.load('assets/images/black king.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black king.png'), (45, 45))),
+        utility.Pieces.Black_Bishop_1: Bishop(0,2, pygame.transform.scale(pygame.image.load('assets/images/black bishop.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black bishop.png'), (45, 45))),
+        utility.Pieces.Black_Bishop_2: Bishop(0,5, pygame.transform.scale(pygame.image.load('assets/images/black bishop.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black bishop.png'), (45, 45))),
+        utility.Pieces.Black_Knight_1: Knight(0,1, pygame.transform.scale(pygame.image.load('assets/images/black knight.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black knight.png'), (45, 45))),
+        utility.Pieces.Black_Knight_2: Knight(0,6, pygame.transform.scale(pygame.image.load('assets/images/black knight.png'), (60, 60)), 'black', pygame.transform.scale(pygame.image.load('assets/images/black knight.png'), (45, 45)))}
 
         # add each piece to the board
         for key in self.piece_mapping:
